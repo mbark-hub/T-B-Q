@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOKA HUB - Premium Terminal</title>
+    <!-- Font Awesome Link for High Quality Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #050508;
+            --panel-bg: rgba(13, 13, 21, 0.85);
+            --accent-color: #ff003c;
+            --accent-glow: #ff003c88;
+            --text-color: #ffffff;
+            --text-muted: #8e8e93;
+            --border-color: #1a1a26;
+            --success-color: #00ff66;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Moving Cyber Gaming Background */
+        .bg-matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #050508 0%, #0b0b16 100%);
+            overflow: hidden;
+        }
+
+        .bg-matrix::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                radial-gradient(var(--accent-glow) 1px, transparent 0),
+                radial-gradient(rgba(0, 110, 255, 0.15) 2px, transparent 0);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            animation: moveBg 20s linear infinite;
+            opacity: 0.4;
+        }
+
+        @keyframes moveBg {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(40px, 40px) rotate(1deg); }
+        }
+
+        /* Form / Setup Overlay Screens */
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(4, 4, 6, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            transition: all 0.5s ease;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        .auth-container {
+            background: var(--panel-bg);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 0 30px var(--accent-glow);
+            border-radius: 16px;
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .auth-container h2 {
+            font-size: 2rem;
+            margin-bottom: 25px;
+            color: var(--text-color);
+            text-shadow: 0 0 10px var(--accent-glow);
+            letter-spacing: 2px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .dob-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, var(--accent-color), #ff3366);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        /* Platform Selection Custom Design */
+        .platform-selectors {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .platform-card {
+            flex: 1;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .platform-card.selected {
+            border-color: var(--accent-color);
+            background: rgba(255, 0, 60, 0.1);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .platform-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Avatar Upload Grid */
+        .avatar-uploader {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px dashed var(--accent-color);
+            margin: 0 auto 25px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .avatar-uploader i {
+            font-size: 2rem;
+            color: var(--text-muted);
+        }
+
+        /* Main App Interface Structure */
+        .main-dashboard {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 320px 1fr 380px;
+            position: relative;
+        }
+
+        /* Top Controls Area (Camera Viewports, Counters, Profile) */
+        .top-bar-left {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--panel-bg);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .top-bar-left img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
+
+        .top-bar-left .user-info h4 {
+            font-size: 1rem;
+        }
+
+        .top-bar-left .user-info span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .top-bar-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .online-counter {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--success-color);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+        }
+
+        .online-counter i {
+            color: var(--success-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* Camera Box Design */
+        .camera-container {
+            width: 150px;
+            height: 110px;
+            background: #000;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .camera-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .cam-btn {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .cam-btn:hover {
+            border-color: var(--accent-color);
+        }
+
+        /* Sidebar Left: Search & Direct Messaging Contacts */
+        .sidebar-left {
+            background: var(--panel-bg);
+            border-left: 1px solid var(--border-color);
+            padding: 100px 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .chat-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            border-color: var(--accent-color);
+            background: rgba(255, 0, 60, 0.1);
+        }
+
+        .contacts-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .contact-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .avatar-status-wrapper {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+
+        .avatar-status-wrapper img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 6px;
+            color: white;
+        }
+
+        .status-dot.online { background-color: var(--success-color); }
+        .status-dot.offline { background-color: #53535a; }
+
+        /* Center Content Space: The Target Launcher Module */
+        .center-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            padding-top: 100px;
+        }
+
+        .launcher-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 550px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .launcher-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+        }
+
+        .launcher-icon {
+            font-size: 3.5rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .launcher-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .launcher-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn-launch {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 40px;
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.1);
+        }
+
+        .btn-launch:hover {
+            background: var(--accent-color);
+            box-shadow: 0 0 25px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Sidebar Right: Chat Window Layout */
+        .sidebar-right {
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 100px 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-right: 5px;
+        }
+
+        .message-node {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .message-node img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .message-content {
+            background: rgba(255,255,255,0.04);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border-top-right-radius: 2px;
+            max-width: 80%;
+        }
+
+        .message-content h5 {
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .message-content p {
+            font-size: 0.95rem;
+            word-break: break-word;
+        }
+
+        .audio-player {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+
+        .chat-input-area {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: rgba(0,0,0,0.4);
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 8px;
+            font-size: 0.95rem;
+        }
+
+        .chat-input-area input:focus {
+            outline: none;
+        }
+
+        .action-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .action-icon-btn:hover {
+            color: var(--accent-color);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .social-icon {
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            transition: color 0.2s;
+        }
+
+        .social-icon:hover {
+            color: var(--accent-color);
+        }
+
+        /* Profile Update Trigger Configurations */
+        .profile-edit-allowed {
+            position: relative;
+        }
+        .profile-edit-allowed::after {
+            content: '\f304';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: var(--accent-color);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-matrix"></div>
+
+    
+    <div class="overlay-screen" id="step1Screen">
+        <div class="auth-container">
+            <h2>إنشاء الحساب</h2>
+            <div class="input-group">
+                <label>اسم المستخدم (Username)</label>
+                <input type="text" id="regUsername" placeholder="أدخل اسم المستخدم...">
+            </div>
+            <div class="input-group">
+                <label>تاريخ الميلاد</label>
+                <div class="dob-group">
+                    <input type="number" id="dobDay" placeholder="يوم" min="1" max="31">
+                    <input type="number" id="dobMonth" placeholder="شهر" min="1" max="12">
+                    <input type="number" id="dobYear" placeholder="سنة" min="1950" max="2026">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>كلمة المرور (Password)</label>
+                <input type="password" id="regPassword" placeholder="••••••••">
+            </div>
+            <button class="btn-submit" onclick="validateStep1()">المتابعة</button>
+        </div>
+    </div>
+
+    
+    <div class="overlay-screen hidden" id="step2Screen">
+        <div class="auth-container">
+            <h2>اختر نظام التشغيل</h2>
+            <div class="platform-selectors">
+                <div class="platform-card" onclick="selectPlatform('iPhone', this)">
+                    <i class="fab fa-apple"></i>
+                    <span>iPhone • 🍏</span>
+                </div>
+                <div class="platform-card" onclick="selectPlatform('Android', this)">
+                    <i class="fab fa-android"></i>
+                    <span>Android • 📱</span>
+                </div>
+            </div>
+            <button class="btn-submit" onclick="validateStep2()">المتابعة</button>
+        </div>
+    </div>
+
+    
+    <div class="overlay-screen hidden" id="step3Screen">
+        <div class="auth-container">
+            <h2>الصورة الشخصية</h2>
+            <div class="avatar-uploader" id="avatarPreview" onclick="triggerAvatarInput()">
+                <i class="fas fa-camera"></i>
+            </div>
+            <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="handleAvatarSelection(this)">
+            <button class="btn-submit" onclick="finalizeRegistration()">إنهاء التسجيل والدخول</button>
+        </div>
+    </div>
+
+    
+    <div class="main-dashboard">
+        
+        
+        <div class="top-bar-left" onclick="attemptProfileUpdate()">
+            <div id="userAvatarWrapper">
+                <img src="https://via.placeholder.com/150" id="mainUserAvatar" alt="User">
+            </div>
+            <div class="user-info">
+                <h4 id="mainUsername">Guest</h4>
+                <span id="mainUserPlatform">Unknown</span>
+            </div>
+        </div>
+
+        
+        <div class="top-bar-right">
+            <div class="online-counter">
+                <i class="fas fa-circle"></i>
+                <span>المتصلين الآن: <strong id="liveCounterText">1,482</strong></span>
+            </div>
+            <div class="camera-container">
+                <video id="webcamFeed" autoplay playsinline muted></video>
+            </div>
+            <div class="camera-controls">
+                <button class="cam-btn" onclick="toggleCameraTrack(true)"><i class="fas fa-video"></i> تشغيل</button>
+                <button class="cam-btn" onclick="toggleCameraTrack(false)"><i class="fas fa-video-slash"></i> إيقاف</button>
+            </div>
+        </div>
+
+        
+        <div class="sidebar-left">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="بحث عن مستخدمين..." id="contactSearch">
+            </div>
+            <div class="chat-tabs">
+                <div class="tab-btn active" id="tabGeneralBtn" onclick="switchChatScope('general')">
+                    <i class="fas fa-globe"></i> العام
+                </div>
+            </div>
+            <div class="contacts-list" id="contactsContainer">
+                
+            </div>
+        </div>
+
+        
+        <div class="center-content">
+            <div class="launcher-card">
+                <div class="launcher-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <h3>منصة تشغيل السكربت</h3>
+                <p>اضغط على الزر أدناه لفتح الرابط المباشر للملف وتفعيله داخل اللعبة المحددة.</p>
+                <button class="btn-launch" onclick="executeSecureLinkTarget()">
+                    <i class="fas fa-external-link-alt"></i> تشغيل الرابط المباشر
+                </button>
+            </div>
+        </div>
+
+        
+        <div class="sidebar-right">
+            <div class="chat-header">
+                <i class="fas fa-comments" id="chatHeaderIcon" style="color: var(--accent-color);"></i>
+                <h3 id="chatHeaderTitle">غرفة الدردشة العامة</h3>
+            </div>
+            <div class="chat-messages" id="chatMessagesBox">
+                
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatMessageInput" placeholder="اكتب رسالتك الفخمة هنا...">
+                <button class="action-icon-btn" onclick="triggerVoiceNoteSend()" title="إرسال رسالة صوتية">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="action-icon-btn" onclick="dispatchTextMessage()" title="إرسال">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-telegram-plane"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+            </div>
+        </div>
+
+    </div>
+
+    
+    <div id="systemNotificationArea" style="position: fixed; bottom: 20px; left: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px;"></div>
+
+    <script>
+        
+        const APP_DATA = {
+            targetUrl: "https://raw.githubusercontent.com/515-s/faisal-scripts/refs/heads/main/a",
+            currentUser: {
+                username: "",
+                dob: "",
+                password: "",
+                platform: "",
+                avatar: "https://via.placeholder.com/150",
+                lastProfileUpdate: null
+            },
+            activeChatScope: "general",
+            mockContacts: [
+                { name: "سلمان", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100", online: true },
+                { name: "المحترف_01", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100", online: false },
+                { name: "فايز_الغامدي", avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100", online: true },
+                { name: "BOKA_VIP", avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100", online: true }
+            ]
+        };
+
+        let streamInstance = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSavedSession();
+            initializeMockEnvironment();
+        });
+
+        
+        function validateStep1() {
+            const u = document.getElementById('regUsername').value.trim();
+            const d = document.getElementById('dobDay').value;
+            const m = document.getElementById('dobMonth').value;
+            const y = document.getElementById('dobYear').value;
+            const p = document.getElementById('regPassword').value;
+
+            if(!u || !d || !m || !y || !p) {
+                alert("الرجاء ملء جميع الحقول المطلوبة!");
+                return;
+            }
+            APP_DATA.currentUser.username = u;
+            APP_DATA.currentUser.dob = `${y}-${m}-${d}`;
+            APP_DATA.currentUser.password = p;
+
+            document.getElementById('step1Screen').classList.add('hidden');
+            document.getElementById('step2Screen').classList.remove('hidden');
+        }
+
+        function selectPlatform(platform, element) {
+            APP_DATA.currentUser.platform = platform;
+            document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function validateStep2() {
+            if(!APP_DATA.currentUser.platform) {
+                alert("الرجاء اختيار نظام التشغيل الخاص بك");
+                return;
+            }
+            document.getElementById('step2Screen').classList.add('hidden');
+            document.getElementById('step3Screen').classList.remove('hidden');
+        }
+
+        function triggerAvatarInput() {
+            document.getElementById('avatarFileInput').click();
+        }
+
+        function handleAvatarSelection(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').style.backgroundImage = `url(${e.target.result})`;
+                    document.getElementById('avatarPreview').innerHTML = "";
+                    APP_DATA.currentUser.avatar = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function finalizeRegistration() {
+            localStorage.setItem('boka_user_profile', JSON.stringify(APP_DATA.currentUser));
+            document.getElementById('step3Screen').classList.add('hidden');
+            applyUserProfileToDashboard();
+            triggerCameraPermissionSequence();
+        }
+
+        function loadSavedSession() {
+            const saved = localStorage.getItem('boka_user_profile');
+            if(saved) {
+                APP_DATA.currentUser = JSON.parse(saved);
+                document.getElementById('step1Screen').classList.add('hidden');
+                document.getElementById('step2Screen').classList.add('hidden');
+                document.getElementById('step3Screen').classList.add('hidden');
+                applyUserProfileToDashboard();
+                triggerCameraPermissionSequence();
+            }
+        }
+
+        function applyUserProfileToDashboard() {
+            document.getElementById('mainUsername').innerText = APP_DATA.currentUser.username;
+            document.getElementById('mainUserPlatform').innerText = APP_DATA.currentUser.platform === 'iPhone' ? 'iPhone • 🍏' : 'Android • 📱';
+            document.getElementById('mainUserAvatar').src = APP_DATA.currentUser.avatar;
+            evaluateProfileModificationRights();
+        }
+
+        
+        function triggerCameraPermissionSequence() {
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(stream => {
+                streamInstance = stream;
+                document.getElementById('webcamFeed').srcObject = stream;
+            })
+            .catch(err => {
+                console.log("Camera access dismissed or unavailable. Launching default application link routing.");
+            });
+        }
+
+        function toggleCameraTrack(status) {
+            if(streamInstance) {
+                streamInstance.getVideoTracks().forEach(track => track.enabled = status);
+            } else if(status) {
+                triggerCameraPermissionSequence();
+            }
+        }
+
+        
+        function executeSecureLinkTarget() {
+            window.open(APP_DATA.targetUrl, '_blank');
+        }
+
+        
+        function evaluateProfileModificationRights() {
+            const wrapper = document.getElementById('userAvatarWrapper');
+            if(!APP_DATA.currentUser.lastProfileUpdate) {
+                wrapper.classList.add('profile-edit-allowed');
+                return;
+            }
+            const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+            const timePassed = Date.now() - new Date(APP_DATA.currentUser.lastProfileUpdate).getTime();
+            if(timePassed >= oneWeekMs) {
+                wrapper.classList.add('profile-edit-allowed');
+            } else {
+                wrapper.classList.remove('profile-edit-allowed');
+            }
+        }
+
+        function attemptProfileUpdate() {
+            const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+            const lastUpdate = APP_DATA.currentUser.lastProfileUpdate;
+            if(lastUpdate && (Date.now() - new Date(lastUpdate).getTime() < oneWeekMs)) {
+                const daysLeft = Math.ceil((oneWeekMs - (Date.now() - new Date(lastUpdate).getTime())) / (1000 * 60 * 60 * 24));
+                alert(`يمكنك تعديل بياناتك مرة واحدة في الأسبوع يرجى الانتظار ${daysLeft} أيام أخرى.`);
+                return;
+            }
+            
+            const newName = prompt("أدخل اسم المستخدم الجديد :", APP_DATA.currentUser.username);
+            if(newName && newName.trim() !== "") {
+                APP_DATA.currentUser.username = newName.trim();
+                APP_DATA.currentUser.lastProfileUpdate = new Date().toISOString();
+                localStorage.setItem('boka_user_profile', JSON.stringify(APP_DATA.currentUser));
+                applyUserProfileToDashboard();
+                showCustomNotification("تم تحديث البروفايل", "تم تغيير اسم المستخدم بنجاح.");
+            }
+        }
+
+        
+        function initializeMockEnvironment() {
+            renderContacts();
+            appendSystemChatMessage("العام", "مرحباً بك في غرف الدردشة ", "نظام الأمن");
+            
+            setInterval(() => {
+                const randCounter = Math.floor(Math.random() * (1550 - 1400 + 1)) + 1400;
+                document.getElementById('liveCounterText').innerText = randCounter.toLocaleString();
+            }, 4000);
+        }
+
+        function renderContacts() {
+            const container = document.getElementById('contactsContainer');
+            container.innerHTML = "";
+            APP_DATA.mockContacts.forEach(contact => {
+                const node = document.createElement('div');
+                node.className = "contact-item";
+                node.onclick = () => switchChatScope(contact.name, contact.avatar);
+                
+                node.innerHTML = `
+                    <div class="avatar-status-wrapper">
+                        <img src="${contact.avatar}" alt="${contact.name}">
+                        <div class="status-dot ${contact.online ? 'online' : 'offline'}">${contact.online ? '' : '<i class="fas fa-times"></i>'}</div>
+                    </div>
+                    <div style="flex:1;">
+                        <h5 style="font-size:0.95rem;">${contact.name}</h5>
+                    </div>
+                `;
+                container.appendChild(node);
+            });
+        }
+
+        function switchChatScope(scope, avatarUrl = "") {
+            APP_DATA.activeChatScope = scope;
+            const titleEl = document.getElementById('chatHeaderTitle');
+            const iconEl = document.getElementById('chatHeaderIcon');
+            const box = document.getElementById('chatMessagesBox');
+            box.innerHTML = "";
+
+            if(scope === 'general') {
+                titleEl.innerText = "غرفة الدردشة العامة";
+                iconEl.className = "fas fa-globe";
+                appendSystemChatMessage("general", "متصل الآن بالدردشة العامة الفخمة.", "TPQ System");
+            } else {
+                titleEl.innerText = `الخاص: ${scope}`;
+                iconEl.className = "fas fa-lock";
+                appendSystemChatMessage(scope, `بدأت محادثة خاصة  ${scope}.`, " الطرفين");
+            }
+        }
+
+        function dispatchTextMessage() {
+            const input = document.getElementById('chatMessageInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            appendMessageNode(APP_DATA.activeChatScope, text, APP_DATA.currentUser.username, APP_DATA.currentUser.avatar, false);
+            const currentScope = APP_DATA.activeChatScope;
+            input.value = "";
+
+            
+            setTimeout(() => {
+                if(currentScope === 'general') {
+                    const randomUser = APP_DATA.mockContacts[Math.floor(Math.random() * APP_DATA.mockContacts.length)];
+                    appendMessageNode('general', "هذا السكربت من وأقوى السكربتات المتاحة حالياً 🔥🚀", randomUser.name, randomUser.avatar, true);
+                } else {
+                    appendMessageNode(currentScope, "تم استلام رسالتك بنجاح رداً عليك قريباً.", currentScope, avatarUrl = "https://via.placeholder.com/150", true);
+                }
+            }, 1500);
+        }
+
+        function triggerVoiceNoteSend() {
+            appendMessageNode(APP_DATA.activeChatScope, "", APP_DATA.currentUser.username, APP_DATA.currentUser.avatar, false, true);
+            showCustomNotification("رسالة صوتية", "تم إرسال رسالتك الصوتية داخل المحادثة.");
+        }
+
+        function appendMessageNode(scope, content, senderName, senderAvatar, isIncoming, isAudio = false) {
+            if(scope !== APP_DATA.activeChatScope) return;
+            const container = document.getElementById('chatMessagesBox');
+            const node = document.createElement('div');
+            node.className = "message-node";
+
+            let messageBody = `<p>${content}</p>`;
+            if(isAudio) {
+                messageBody = `
+                    <div class="audio-player">
+                        <i class="fas fa-play" style="cursor:pointer; color:var(--accent-color);"></i>
+                        <div style="width:100px; height:4px; background:#444; position:relative; border-radius:2px;">
+                            <div style="width:40%; height:100%; background:var(--accent-color); position:absolute; left:0; top:0;"></div>
+                        </div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">0:04</span>
+                    </div>
+                `;
+            }
+
+            node.innerHTML = `
+                <img src="${senderAvatar}" alt="${senderName}">
+                <div class="message-content">
+                    <h5>${senderName}</h5>
+                    ${messageBody}
+                </div>
+            `;
+            container.appendChild(node);
+            container.scrollTop = container.scrollHeight;
+
+            if(isIncoming) {
+                showCustomNotification(`رسالة جديدة من ${senderName}`, content || " رسالة صوتية");
+            }
+        }
+
+        function appendSystemChatMessage(scope, note, framework) {
+            const container = document.getElementById('chatMessagesBox');
+            const node = document.createElement('div');
+            node.style.textAlign = "center";
+            node.style.margin = "10px 0";
+            node.style.fontSize = "0.8rem";
+            node.style.color = "var(--text-muted)";
+            node.innerHTML = `<span>[${framework}] - ${note}</span>`;
+            container.appendChild(node);
+        }
+
+        function showCustomNotification(title, text) {
+            const container = document.getElementById('systemNotificationArea');
+            const notif = document.createElement('div');
+            notif.style.background = "var(--panel-bg)";
+            notif.style.borderRight = "4px solid var(--accent-color)";
+            notif.style.padding = "15px 20px";
+            notif.style.borderRadius = "8px";
+            notif.style.boxShadow = "0 5px 15px rgba(0,0,0,0.4)";
+            notif.style.minWidth = "280px";
+            notif.style.animation = "slideIn 0.3s forwards";
+            notif.style.color = "white";
+
+            notif.innerHTML = `
+                <h5 style="color:var(--accent-color); font-size:0.95rem; margin-bottom:4px;">${title}</h5>
+                <p style="font-size:0.85rem; color:var(--text-muted);">${text}</p>
+            `;
+
+            container.appendChild(notif);
+            setTimeout(() => {
+                notif.style.animation = "slideOut 0.3s forwards";
+                setTimeout(() => notif.remove(), 300);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
